@@ -1,0 +1,16 @@
+# Core PDF and document processing libraries
+reportlab>=4.0.0
+PyPDF2>=3.0.0
+python-docx>=0.8.11
+openpyxl>=3.1.0
+Pillow>=10.0.0
+
+# Digital signatures and security
+cryptography>=41.0.0
+
+# Modern GUI theming
+customtkinter>=5.2.0
+
+# Additional utilities
+chardet>=5.2.0
+python-magic>=0.4.27
