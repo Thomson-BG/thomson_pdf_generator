@@ -17,6 +17,7 @@ from .converter_tab import ConverterTab
 from .viewer_tab import ViewerTab
 from .editor_tab import EditorTab
 from .signer_tab import SignerTab
+from .preview_tab import PreviewTab
 
 
 class MainWindow:
@@ -105,6 +106,7 @@ class MainWindow:
         self._create_viewer_tab()
         self._create_editor_tab()
         self._create_signer_tab()
+        self._create_preview_tab()
         
         # Set default tab
         self.notebook.set("Converter")
@@ -128,6 +130,11 @@ class MainWindow:
         """Create PDF signer tab"""
         tab = self.notebook.add("Signer")
         self.signer_tab = SignerTab(tab, self)
+
+    def _create_preview_tab(self):
+        """Create PDF preview tab"""
+        tab = self.notebook.add("Preview")
+        self.preview_tab = PreviewTab(tab, self)
     
     def _setup_status_bar(self):
         """Setup status bar at bottom"""
@@ -188,8 +195,8 @@ class MainWindow:
             
             # Load file in appropriate tab based on type
             if file_path.lower().endswith('.pdf'):
-                self.notebook.set("Viewer")
-                self.viewer_tab.load_file(file_path)
+                self.notebook.set("Preview")
+                self.preview_tab.load_pdf(file_path)
             else:
                 self.notebook.set("Converter")
                 self.converter_tab.add_file(file_path)

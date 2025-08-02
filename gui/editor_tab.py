@@ -12,6 +12,7 @@ from typing import Optional, List, Dict, Any, Tuple
 from core.editor import PDFEditor
 from core.pdf_handler import PDFHandler
 from utils.ui_utils import UIUtils
+from .preview_tab import PreviewTab
 
 
 class EditorTab:
@@ -53,6 +54,10 @@ class EditorTab:
         
         # Right panel (document editor)
         self._setup_right_panel(content_frame)
+
+        # Preview panel
+        self.preview_panel = PreviewTab(content_frame, self.main_window)
+        self.preview_panel.get_preview_panel().pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
         
         # Status bar
         self._setup_status_bar(main_frame)
@@ -368,6 +373,7 @@ class EditorTab:
                 self.current_page = 1
                 self._update_display()
                 self._update_controls_state()
+                self.preview_panel.load_pdf(file_path)
                 self.status_label.configure(text=f"Loaded: {os.path.basename(file_path)}")
                 self.main_window.update_status(f"PDF loaded for editing: {os.path.basename(file_path)}")
             else:
@@ -477,6 +483,7 @@ class EditorTab:
                 # Reload the document
                 self.pdf_handler.open_pdf(self.current_pdf_path)
                 self._update_display()
+                self.preview_panel.update_preview()
                 
                 self.main_window.update_status(f"Added text annotation: {text}")
                 self.text_entry.delete(0, tk.END)
