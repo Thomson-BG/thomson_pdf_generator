@@ -7,6 +7,7 @@ Pillow>=10.0.0
 
 # Digital signatures and security
 cryptography>=41.0.0
+PyMuPDF>=1.23.0
 
 # Modern GUI theming
 customtkinter>=5.2.0
