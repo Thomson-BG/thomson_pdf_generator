@@ -102,6 +102,13 @@ def test_pdf_handler():
         info = handler.get_pdf_info()
         print(f"  PDF info: {info.get('filename', 'Unknown')}")
         
+        # Test page rendering
+        image_data = handler.render_page(1)
+        if image_data:
+            print("✓ Page rendered successfully")
+        else:
+            print("✗ Page rendering failed")
+
         print("✓ PDF Handler tests passed")
         return True
     else:

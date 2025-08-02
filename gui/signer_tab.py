@@ -11,6 +11,7 @@ from typing import Optional, Dict, Any
 
 from core.signer import PDFSigner
 from utils.ui_utils import UIUtils
+from .preview_tab import PreviewTab
 
 
 class SignerTab:
@@ -47,6 +48,10 @@ class SignerTab:
         
         # Right panel (signing operations)
         self._setup_right_panel(content_frame)
+
+        # Preview panel
+        self.preview_panel = PreviewTab(content_frame, self.main_window)
+        self.preview_panel.get_preview_panel().pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
         
         # Status bar
         self._setup_status_bar(main_frame)
@@ -398,6 +403,7 @@ class SignerTab:
         if file_path:
             self.file_path_var.set(file_path)
             self.current_pdf_path = file_path
+            self.preview_panel.load_pdf(file_path)
             self._update_sign_button_state()
     
     def _toggle_position_controls(self):

@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from typing import List, Optional, Dict, Any, Tuple
 import PyPDF2
+import fitz  # PyMuPDF
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
@@ -38,29 +39,8 @@ class PDFHandler:
             
             self.close_pdf()  # Close any previously opened PDF
 
-            self.file_stream = open(file_path, 'rb')
-            pdf_reader = PyPDF2.PdfReader(self.file_stream)
-
-            # Check if PDF is encrypted
-            if pdf_reader.is_encrypted:
-                # Try empty password first
-                if not pdf_reader.decrypt(''):
-                    raise ValueError("PDF is password protected")
-
-            self.current_pdf = pdf_reader
-            self.current_pages = []
+            self.current_pdf = fitz.open(file_path)
             self.current_path = file_path
-
-            # Extract page information
-            for page_num in range(len(pdf_reader.pages)):
-                page = pdf_reader.pages[page_num]
-                page_info = {
-                    'number': page_num + 1,
-                    'text': self._extract_page_text(page),
-                    'width': float(page.mediabox.width),
-                    'height': float(page.mediabox.height)
-                }
-                self.current_pages.append(page_info)
 
             return True
 
@@ -78,13 +58,14 @@ class PDFHandler:
     
     def get_page_count(self) -> int:
         """Get number of pages in current PDF"""
-        return len(self.current_pages) if self.current_pages else 0
+        return self.current_pdf.page_count if self.current_pdf else 0
     
     def get_page_text(self, page_number: int) -> str:
         """Get text content of a specific page"""
-        if not self.current_pages or page_number < 1 or page_number > len(self.current_pages):
+        if not self.current_pdf or page_number < 1 or page_number > self.current_pdf.page_count:
             return ""
-        return self.current_pages[page_number - 1]['text']
+        page = self.current_pdf.load_page(page_number - 1)
+        return page.get_text()
     
     def get_page_info(self, page_number: int) -> Optional[Dict[str, Any]]:
         """Get information about a specific page"""
@@ -356,12 +337,21 @@ class PDFHandler:
             print(f"Error adding watermark: {str(e)}")
             return False
     
+    def render_page(self, page_number: int, zoom: float = 1.0) -> Optional[bytes]:
+        """Render a single page as an image"""
+        if not self.current_pdf or page_number < 1 or page_number > self.get_page_count():
+            return None
+
+        page = self.current_pdf.load_page(page_number - 1)
+        mat = fitz.Matrix(zoom, zoom)
+        pix = page.get_pixmap(matrix=mat)
+
+        return pix.tobytes("ppm")
+
     def close_pdf(self):
         """Close current PDF and clear data"""
-        if self.file_stream:
-            self.file_stream.close()
-            self.file_stream = None
+        if self.current_pdf:
+            self.current_pdf.close()
+            self.current_pdf = None
 
-        self.current_pdf = None
-        self.current_pages = []
         self.current_path = None
