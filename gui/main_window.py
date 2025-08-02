@@ -24,7 +24,7 @@ class MainWindow:
     
     def __init__(self):
         # Configure CustomTkinter appearance
-        ctk.set_appearance_mode("light")  # "light" or "dark"
+        ctk.set_appearance_mode("dark")  # "light" or "dark"
         ctk.set_default_color_theme("blue")  # "blue", "green", "dark-blue"
         
         # Create main window
