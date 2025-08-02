@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import List, Optional, Dict, Any, Tuple
 import PyPDF2
-import fitz  # PyMuPDF
+from pdf2image import convert_from_path
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
@@ -39,7 +39,8 @@ class PDFHandler:
             
             self.close_pdf()  # Close any previously opened PDF
 
-            self.current_pdf = fitz.open(file_path)
+            self.file_stream = open(file_path, 'rb')
+            self.current_pdf = PyPDF2.PdfReader(self.file_stream)
             self.current_path = file_path
 
             return True
@@ -58,14 +59,14 @@ class PDFHandler:
     
     def get_page_count(self) -> int:
         """Get number of pages in current PDF"""
-        return self.current_pdf.page_count if self.current_pdf else 0
+        return len(self.current_pdf.pages) if self.current_pdf else 0
     
     def get_page_text(self, page_number: int) -> str:
         """Get text content of a specific page"""
-        if not self.current_pdf or page_number < 1 or page_number > self.current_pdf.page_count:
+        if not self.current_pdf or page_number < 1 or page_number > len(self.current_pdf.pages):
             return ""
-        page = self.current_pdf.load_page(page_number - 1)
-        return page.get_text()
+        page = self.current_pdf.pages[page_number - 1]
+        return page.extract_text()
     
     def get_page_info(self, page_number: int) -> Optional[Dict[str, Any]]:
         """Get information about a specific page"""
@@ -337,21 +338,22 @@ class PDFHandler:
             print(f"Error adding watermark: {str(e)}")
             return False
     
-    def render_page(self, page_number: int, zoom: float = 1.0) -> Optional[bytes]:
+    def render_page(self, page_number: int, zoom: float = 1.0) -> Optional[PILImage.Image]:
         """Render a single page as an image"""
-        if not self.current_pdf or page_number < 1 or page_number > self.get_page_count():
+        if not self.current_path or page_number < 1 or page_number > self.get_page_count():
             return None
 
-        page = self.current_pdf.load_page(page_number - 1)
-        mat = fitz.Matrix(zoom, zoom)
-        pix = page.get_pixmap(matrix=mat)
-
-        return pix.tobytes("ppm")
+        images = convert_from_path(self.current_path, first_page=page_number, last_page=page_number)
+        if images:
+            return images[0]
+        return None
 
     def close_pdf(self):
         """Close current PDF and clear data"""
-        if self.current_pdf:
-            self.current_pdf.close()
-            self.current_pdf = None
+        if self.file_stream:
+            self.file_stream.close()
+            self.file_stream = None
 
+        self.current_pdf = None
+        self.current_pages = []
         self.current_path = None

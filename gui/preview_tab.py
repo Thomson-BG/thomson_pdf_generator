@@ -2,7 +2,6 @@ import tkinter as tk
 import customtkinter as ctk
 from PIL import Image, ImageTk
 from core.pdf_handler import PDFHandler
-import fitz  # PyMuPDF
 
 class PreviewTab:
     def __init__(self, parent, main_window):
@@ -50,19 +49,16 @@ class PreviewTab:
             self.update_toolbar()
 
     def update_preview(self):
-        if not self.pdf_handler.current_pdf:
+        if not self.pdf_handler.current_path:
             return
 
-        page = self.pdf_handler.current_pdf.load_page(self.current_page)
-        mat = fitz.Matrix(self.zoom_factor, self.zoom_factor)
-        pix = page.get_pixmap(matrix=mat)
+        img = self.pdf_handler.render_page(self.current_page + 1, zoom=self.zoom_factor)
+        if img:
+            self.photo_image = ImageTk.PhotoImage(image=img)
 
-        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-        self.photo_image = ImageTk.PhotoImage(image=img)
-
-        self.canvas.delete("all")
-        self.canvas.create_image(0, 0, anchor="nw", image=self.photo_image)
-        self.canvas.config(scrollregion=self.canvas.bbox(tk.ALL))
+            self.canvas.delete("all")
+            self.canvas.create_image(0, 0, anchor="nw", image=self.photo_image)
+            self.canvas.config(scrollregion=self.canvas.bbox(tk.ALL))
 
     def update_toolbar(self):
         if self.pdf_handler.current_pdf:
