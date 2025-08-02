@@ -9,9 +9,9 @@ import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple
 
-from ..core.editor import PDFEditor
-from ..core.pdf_handler import PDFHandler
-from ..utils.ui_utils import UIUtils
+from core.editor import PDFEditor
+from core.pdf_handler import PDFHandler
+from utils.ui_utils import UIUtils
 
 
 class EditorTab:

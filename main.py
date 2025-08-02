@@ -14,13 +14,7 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-try:
-    from gui.main_window import MainWindow
-except ImportError as e:
-    print(f"Error importing GUI modules: {e}")
-    print("Please ensure all dependencies are installed:")
-    print("pip install -r requirements.txt")
-    sys.exit(1)
+from gui.main_window import MainWindow
 
 
 def check_dependencies():

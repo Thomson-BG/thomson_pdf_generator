@@ -9,8 +9,8 @@ import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-from ..core.pdf_handler import PDFHandler
-from ..utils.ui_utils import UIUtils
+from core.pdf_handler import PDFHandler
+from utils.ui_utils import UIUtils
 
 
 class ViewerTab:
@@ -274,7 +274,7 @@ class ViewerTab:
         """Open PDF file"""
         file_path = UIUtils.select_file(
             "Open PDF File",
-            [("PDF Files", "*.pdf"), ("All Files", "*.*")],
+            [("PDF Files", "*.pdf")],
             self.main_window.root
         )
         

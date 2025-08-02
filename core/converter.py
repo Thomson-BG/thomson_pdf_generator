@@ -15,10 +15,7 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 from PIL import Image as PILImage
 import docx
 import openpyxl
-try:
-    from ..utils.file_utils import FileUtils
-except ImportError:
-    from utils.file_utils import FileUtils
+from utils.file_utils import FileUtils
 
 
 class FileConverter:
