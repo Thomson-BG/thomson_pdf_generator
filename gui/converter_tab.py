@@ -10,9 +10,9 @@ import threading
 from pathlib import Path
 from typing import List, Optional
 
-from ..core.converter import FileConverter
-from ..utils.file_utils import FileUtils
-from ..utils.ui_utils import UIUtils
+from core.converter import FileConverter
+from utils.file_utils import FileUtils
+from utils.ui_utils import UIUtils
 
 
 class ConverterTab:

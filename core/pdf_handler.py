@@ -20,6 +20,7 @@ class PDFHandler:
         self.current_pdf = None
         self.current_pages = []
         self.current_path = None
+        self.file_stream = None
     
     def open_pdf(self, file_path: str) -> bool:
         """
@@ -35,34 +36,37 @@ class PDFHandler:
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"PDF file not found: {file_path}")
             
-            with open(file_path, 'rb') as file:
-                pdf_reader = PyPDF2.PdfReader(file)
-                
-                # Check if PDF is encrypted
-                if pdf_reader.is_encrypted:
-                    # Try empty password first
-                    if not pdf_reader.decrypt(''):
-                        raise ValueError("PDF is password protected")
-                
-                self.current_pdf = pdf_reader
-                self.current_pages = []
-                self.current_path = file_path
-                
-                # Extract page information
-                for page_num in range(len(pdf_reader.pages)):
-                    page = pdf_reader.pages[page_num]
-                    page_info = {
-                        'number': page_num + 1,
-                        'text': self._extract_page_text(page),
-                        'width': float(page.mediabox.width),
-                        'height': float(page.mediabox.height)
-                    }
-                    self.current_pages.append(page_info)
-                
-                return True
-                
+            self.close_pdf()  # Close any previously opened PDF
+
+            self.file_stream = open(file_path, 'rb')
+            pdf_reader = PyPDF2.PdfReader(self.file_stream)
+
+            # Check if PDF is encrypted
+            if pdf_reader.is_encrypted:
+                # Try empty password first
+                if not pdf_reader.decrypt(''):
+                    raise ValueError("PDF is password protected")
+
+            self.current_pdf = pdf_reader
+            self.current_pages = []
+            self.current_path = file_path
+
+            # Extract page information
+            for page_num in range(len(pdf_reader.pages)):
+                page = pdf_reader.pages[page_num]
+                page_info = {
+                    'number': page_num + 1,
+                    'text': self._extract_page_text(page),
+                    'width': float(page.mediabox.width),
+                    'height': float(page.mediabox.height)
+                }
+                self.current_pages.append(page_info)
+
+            return True
+
         except Exception as e:
             print(f"Error opening PDF: {str(e)}")
+            self.close_pdf()
             return False
     
     def _extract_page_text(self, page) -> str:
@@ -354,6 +358,10 @@ class PDFHandler:
     
     def close_pdf(self):
         """Close current PDF and clear data"""
+        if self.file_stream:
+            self.file_stream.close()
+            self.file_stream = None
+
         self.current_pdf = None
         self.current_pages = []
         self.current_path = None

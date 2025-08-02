@@ -9,8 +9,8 @@ import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-from ..core.signer import PDFSigner
-from ..utils.ui_utils import UIUtils
+from core.signer import PDFSigner
+from utils.ui_utils import UIUtils
 
 
 class SignerTab:
