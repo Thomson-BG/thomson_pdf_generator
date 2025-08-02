@@ -5,7 +5,7 @@ Digital signature functionality for PDF documents
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 import PyPDF2
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -75,9 +75,9 @@ class PDFSigner:
             ).serial_number(
                 x509.random_serial_number()
             ).not_valid_before(
-                datetime.now(timezone.utc) - timedelta(days=1)
+                datetime.now(timezone.utc)
             ).not_valid_after(
-                datetime.now(timezone.utc) + timedelta(days=365)
+                datetime.now(timezone.utc).replace(year=datetime.now(timezone.utc).year + 1)
             ).add_extension(
                 x509.SubjectAlternativeName([
                     x509.DNSName("localhost"),
