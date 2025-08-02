@@ -5,7 +5,7 @@ Digital signature functionality for PDF documents
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import PyPDF2
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -75,9 +75,9 @@ class PDFSigner:
             ).serial_number(
                 x509.random_serial_number()
             ).not_valid_before(
-                datetime.utcnow()
+                datetime.now(timezone.utc) - timedelta(days=1)
             ).not_valid_after(
-                datetime.utcnow().replace(year=datetime.utcnow().year + 1)  # Valid for 1 year
+                datetime.now(timezone.utc) + timedelta(days=365)
             ).add_extension(
                 x509.SubjectAlternativeName([
                     x509.DNSName("localhost"),
@@ -107,8 +107,8 @@ class PDFSigner:
                 'email': email or 'Not specified',
                 'organization': organization or 'Not specified',
                 'country': country,
-                'created': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'valid_until': self.certificate.not_valid_after.strftime('%Y-%m-%d %H:%M:%S')
+                'created': datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                'valid_until': self.certificate.not_valid_after_utc.strftime('%Y-%m-%d %H:%M:%S')
             }
             
             return True
@@ -150,8 +150,8 @@ class PDFSigner:
                 'email': self._get_name_attribute(subject, NameOID.EMAIL_ADDRESS),
                 'organization': self._get_name_attribute(subject, NameOID.ORGANIZATION_NAME),
                 'country': self._get_name_attribute(subject, NameOID.COUNTRY_NAME),
-                'valid_from': self.certificate.not_valid_before.strftime('%Y-%m-%d %H:%M:%S'),
-                'valid_until': self.certificate.not_valid_after.strftime('%Y-%m-%d %H:%M:%S')
+                'valid_from': self.certificate.not_valid_before_utc.strftime('%Y-%m-%d %H:%M:%S'),
+                'valid_until': self.certificate.not_valid_after_utc.strftime('%Y-%m-%d %H:%M:%S')
             }
             
             return True
